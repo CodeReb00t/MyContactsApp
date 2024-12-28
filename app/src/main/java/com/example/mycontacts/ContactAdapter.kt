@@ -1,10 +1,13 @@
 package com.example.mycontacts
-
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mycontacts.databinding.ItemContactBinding
 
@@ -29,16 +32,23 @@ class ContactAdapter(private var contactList: MutableList<Contact>, private val 
         }
     }
 
-    private fun makePhoneCall(phoneNumber: String) {
-        // Create the intent to dial the phone number
-        val intent = Intent(Intent.ACTION_DIAL)
-        intent.data = Uri.parse("tel:$phoneNumber")
-
-        // Use the context to start the activity
-        context.startActivity(intent)
-    }
 
     override fun getItemCount(): Int {
         return contactList.size
+    }
+    private fun makePhoneCall(phoneNumber: String) {
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.CALL_PHONE
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            // Permission granted, make the call
+            val intent = Intent(Intent.ACTION_CALL)
+            intent.data = Uri.parse("tel:$phoneNumber")
+            context.startActivity(intent)
+        } else {
+            // Permission not granted, show a message
+            Toast.makeText(context, "Permission denied. Enable CALL_PHONE permission.", Toast.LENGTH_SHORT).show()
+        }
     }
 }

@@ -1,5 +1,7 @@
 package com.example.mycontacts
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +10,8 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mycontacts.databinding.ActivityMainBinding
 
@@ -17,12 +21,23 @@ class MainActivity : AppCompatActivity() {
     private lateinit var contactAdapter: ContactAdapter
     private var contactList = mutableListOf<Contact>()
     private lateinit var databaseHelper: DatabaseHelper
-
+    private val REQUEST_CALL_PERMISSION = 1 // Request code for CALL_PHONE permission
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Check for CALL_PHONE permission
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.CALL_PHONE),
+                REQUEST_CALL_PERMISSION
+            )
+        }
 
         // Initialize the database helper
         databaseHelper = DatabaseHelper(this)
@@ -86,7 +101,6 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Please fill in both fields", Toast.LENGTH_SHORT).show()
             }
         }
-
         dialog.show() // Show the dialog
     }
 
@@ -101,4 +115,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_CALL_PERMISSION) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Permission granted!", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Permission denied. You won't be able to make direct calls.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 }

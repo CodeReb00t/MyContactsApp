@@ -19,13 +19,11 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, "contacts_db"
             )
         """
         db.execSQL(createTable)
-        Log.d(tag, "Table 'contacts' created.")
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         db.execSQL("DROP TABLE IF EXISTS contacts")
         onCreate(db)
-        Log.d(tag, "Table 'contacts' upgraded.")
     }
 
     fun addContact(contact: Contact) {
@@ -58,9 +56,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, "contacts_db"
             val name = cursor.getString(cursor.getColumnIndex("name"))
             val phone = cursor.getString(cursor.getColumnIndex("phone"))
             contacts.add(Contact(name, phone))
-            Log.d(tag, "Contact retrieved: $name, $phone")
         }
-
         cursor.close()
         db.close()
 
